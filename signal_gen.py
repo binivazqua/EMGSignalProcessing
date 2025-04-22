@@ -9,7 +9,7 @@ def generate_emg_signal():
     
     # Contraccion por probabilidad
     if random.random() > 0.1: # Crea una float de 0.0 a 0.999 -> calculamos probabilidad
-        spike = random.uniform(1.2, 2.5) # pico aleatorio de 1.2V a 2.5V -> mi rango normal debilucho
+        spike = random.uniform(1.5, 2.5) # pico aleatorio de 1.2V a 2.5V -> mi rango normal debilucho
         return spike
     else:
         return s_base
@@ -17,6 +17,9 @@ def generate_emg_signal():
 window_size = 5 # definimos el tamaño de la ventana
 buffer = [0.0] * window_size # creamos un array con ceros del tamaño de la ventana
 index = 0 # creamos la variable que regula el index
+
+# creando un umbral de detección:
+threshold = 0.8
 
 def sliding_filter(new_value):
     """
@@ -35,11 +38,15 @@ def sliding_filter(new_value):
 
 
 
-
 # Salimos de la funcion wtf con python
 while True:
     raw_signal = generate_emg_signal()
     filtered_signal = sliding_filter(raw_signal)
-    print("Raw: {:.3f} V\tFiltered: {:.3f} V".format(raw_signal, filtered_signal))
+
+    # Comparación con el umbral
+    if filtered_signal > threshold:
+        print("Contraccion detectada!!!: {:.3f} V".format(filtered_signal))
+    else:
+        print("Reposo: {:.3f} V".format(filtered_signal))
     time.sleep(0.10)
 
