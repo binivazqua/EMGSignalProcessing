@@ -74,33 +74,75 @@ def get_timestamp():
         # Si no existe, estamos en Python normal
         return int(time.time() * 1000)  # segundos * 1000 para tener milisegundos
 
+
+# función de adquisición de archivo .csv con datos 
+def save_log_to_csv(filename, log_data):
+    """     
+        Recibe EMG data y la guarda en un archivo .csv
+        Donde:
+        - filename: nombre del archivo a guardar.
+        - log_data: lista/array de datos a guardar
+
+        Step by step:
+            open(): abre o crea un archivo.
+                "w" como parámetro significa "modo escritura".
+            este archivo abierto se llama "file" localmente.
+
+            file.write(): escribe la primera línea (los encabezados) del archivo.
+
+            for entry in log_data:
+                for: recorre cada elemento en el array.
+                    - cada elemento se guarda localmente en la variable "entry"
+                        cada entry es un tuple.
+                    - timestamp, value, state = entry -> deshace el tuple.
+            
+            formatting:
+                escribe una línea para cada registro de log_data.
+    
+    """
+    with open(filename, "w") as file:
+        file.write("Timestamp_ms,Filtered_Value_V,State\n")  # Encabezados CSV
+        for entry in log_data:
+            timestamp, value, state = entry
+            file.write("{},{:.3f},{}\n".format(timestamp, value, state))         
+         
+
 # Salimos de la funcion wtf con python
-while True:
-    timestamp = get_timestamp()
-    raw_signal = generate_emg_signal_real()
-    filtered_signal = sliding_filter(raw_signal)
 
-    # Comparación con el umbral
+try:
+    while True:
+        timestamp = get_timestamp()
+        raw_signal = generate_emg_signal_real()
+        filtered_signal = sliding_filter(raw_signal)
 
-    #if filtered_signal > threshold:
-    #    print("Contraccion detectada!!!: {:.3f} V".format(filtered_signal))
-    #    contraction_count += 1
-    #else:
-    #    print("Reposo: {:.3f} V".format(filtered_signal))
-    #time.sleep(0.10)
+        # Comparación con el umbral
 
-    # Detecta el estado
-    if filtered_signal > threshold:
-        state = "contracting"
-        contraction_count += 1
-    else:
-        state = "rest"
+        #if filtered_signal > threshold:
+        #    print("Contraccion detectada!!!: {:.3f} V".format(filtered_signal))
+        #    contraction_count += 1
+        #else:
+        #    print("Reposo: {:.3f} V".format(filtered_signal))
+        #time.sleep(0.10)
 
-    print("Time: {} ms | Filtered Value: {:.3f} V | State: {}".format(timestamp, filtered_signal, muscle_state))
+        # Detecta el estado
+        if filtered_signal > threshold:
+            state = "contracting"
+            contraction_count += 1
+        else:
+            state = "rest"
 
-    log.append((timestamp, filtered_signal, state))
+        print("Time: {} ms | Filtered Value: {:.3f} V | State: {}".format(timestamp, filtered_signal, muscle_state))
 
-    time.sleep(0.1)
+        # guardar en mi log para further .csv
+        log.append((timestamp, filtered_signal, state))
+
+        time.sleep(0.1)
+except KeyboardInterrupt:
+    print("\n🛑 Adquisición detenida. Guardando datos en archivo...")
+    save_log_to_csv("emg_log.csv", log)
+    print("✅ Datos guardados exitosamente en 'emg_log.csv'.")
+
+
 
 
 
