@@ -106,6 +106,25 @@ def save_log_to_csv(filename, log_data):
             timestamp, value, state = entry
             file.write("{},{:.3f},{}\n".format(timestamp, value, state))         
          
+# función para generar distintos files
+def generate_filename(base_name="emg_log"):
+    try:
+        # MicroPython no tiene datetime completo, simulamos con ticks_ms
+        now = get_timestamp()
+        seconds = now // 1000
+        minutes = (seconds // 60) % 60
+        hours = (seconds // 3600) % 24
+        day = 1  # No podemos saber el día real sin RTC
+        month = 1  # Idem
+
+        filename = "{}_{}_{}_{}_{}.csv".format(base_name, day, month, hours, minutes)
+    except:
+        # Si estamos en PC (Python normal), usamos datetime real
+        import datetime
+        now = datetime.datetime.now()
+        filename = "{}_{}_{}_{}_{}.csv".format(base_name, now.day, now.month, now.hour, now.minute)
+    
+    return filename
 
 # Salimos de la funcion wtf con python
 
@@ -138,8 +157,9 @@ try:
 
         time.sleep(0.1)
 except KeyboardInterrupt:
+    filename = generate_filename()
     print("\n🛑 Adquisición detenida. Guardando datos en archivo...")
-    save_log_to_csv("emg_log.csv", log)
+    save_log_to_csv(filename, log)
     print("✅ Datos guardados exitosamente en 'emg_log.csv'.")
 
 
