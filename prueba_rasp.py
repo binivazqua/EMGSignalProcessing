@@ -3,13 +3,14 @@ import time
 import csv
 
 # Crear puerto 
-ser = serial.Serial('/dev/tty.usbmodem1401', 115200)
+ser = serial.Serial('/dev/tty.usbmodem11401', 115200)
 
 filename = 'rasp_data.csv'
 window_size = 5
 index = 0
 buffer = [0.0] * window_size
-threshold = 0.3
+threshold = 0.2
+raw_threshold = 250  # Umbral para considerar un valor como activo
 muscle_state = "rest"
 
 def sliding_filter(value):
@@ -69,7 +70,7 @@ for dato in datos:
     print(f"Nuevo dato: {dato}, Promedio: {promedio}\n{'-'*40}")
 
 # función para generar distintos files
-def generate_filename(base_name="emg_log"):
+def generate_filename(base_name="emg_log_sensor"):
     try:
         # MicroPython no tiene datetime completo, simulamos con ticks_ms
         now = get_timestamp()
@@ -91,10 +92,10 @@ def generate_filename(base_name="emg_log"):
 
 with open(generate_filename(), 'w', newline='') as csvfile:
     writer = csv.writer(csvfile)
-    writer.writerow(['timestamp', 'emg_voltage', 'muscle_state'])
+    writer.writerow(['timestamp', 'raw_value', 'emg_voltage', 'filtered_value', 'muscle_state'])
 
     start_time = time.time()
-    while time.time() - start_time < 20: # -> 10 secs
+    while time.time() - start_time < 10: # -> 10 secs
         if ser.in_waiting:
             line = ser.readline().decode('utf-8').strip()
             timestamp = time.time() - start_time
@@ -102,12 +103,12 @@ with open(generate_filename(), 'w', newline='') as csvfile:
                 raw_value = int(line)
                 voltage = raw_value * (3.3 / 4095.0)
                 
-                if voltage > threshold:
+                if raw_value > raw_threshold:
                     muscle_state = "active"
                 else:
                     muscle_state = "rest"
                 print(f"Muscle state: {muscle_state}, RawValue: {raw_value}, Voltage: {voltage:.2f} V, Filtered Value: {sliding_filter(voltage):.2f} V")
-                writer.writerow([round(timestamp, 2), round(voltage, 2), muscle_state])
+                writer.writerow([round(timestamp, 2), raw_value, round(voltage, 2), round(sliding_filter(voltage), 2), muscle_state])
                 
                 
             except ValueError:
