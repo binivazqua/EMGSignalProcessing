@@ -3,7 +3,7 @@ import time
 import csv
 
 # Crear puerto 
-ser = serial.Serial('/dev/tty.usbmodem11201', 115200)
+ser = serial.Serial('/dev/tty.usbmodem1401', 115200)
 
 filename = 'rasp_data.csv'
 window_size = 5
@@ -14,18 +14,59 @@ muscle_state = "rest"
 
 def sliding_filter(value):
     """
+    Applies a sliding window average filter to a stream of incoming values.
+
+    Each time a new value is received, it is stored in a circular buffer of fixed size (`window_size`).
+    The function updates the buffer index, computes the average of the current buffer contents,
+    and returns the result. This is typically used for smoothing noisy signals, such as EMG data.
+
+    Parameters:
+        value (float): The new value to add to the sliding window buffer.
+
+    Returns:
+        float: The current average of the values in the buffer.
+
+    Example:
+        >>> window_size = 3
+        >>> buffer = [0.0] * window_size
+        >>> index = 0
+        >>> sliding_filter(1.0)
+        0.3333333333333333
+        >>> sliding_filter(2.0)
+        1.0
+        >>> sliding_filter(3.0)
+        2.0
+        >>> sliding_filter(4.0)
+        3.0
+    
         Func que recibirá un nuevo valor cada 10ms y:
             - Lo guardará en el buffer
             - Actualiza el índice
             - Calcula el promedio
             - Devuelve el resultado
-
     """
     global index 
-    buffer[index]
+    buffer[index] = value
     index = (index + 1) % window_size
     average = sum(buffer) / window_size
     return average
+
+def sliding_filter_explained(value):
+    global index
+    print(f"Índice antes: {index}")
+    buffer[index] = value
+    print(f"Guardando {value} en buffer[{index}]")
+    # Aquí usamos el módulo para que el índice vuelva a 0 cuando llegue a window_size
+    index = (index + 1) % window_size
+    print(f"Índice después: {index} (por módulo: ({index - 1} + 1) % {window_size})")
+    print(f"Buffer actual: {buffer}\n")
+    return sum(buffer) / window_size
+
+# Simulación de llegada de datos
+datos = [10, 20, 30, 40, 50]
+for dato in datos:
+    promedio = sliding_filter(dato)
+    print(f"Nuevo dato: {dato}, Promedio: {promedio}\n{'-'*40}")
 
 # función para generar distintos files
 def generate_filename(base_name="emg_log"):
@@ -65,9 +106,10 @@ with open(generate_filename(), 'w', newline='') as csvfile:
                     muscle_state = "active"
                 else:
                     muscle_state = "rest"
-                print(f"Muscle state: {muscle_state}, Voltage: {voltage:.2f} V, Filtered Value: {sliding_filter(raw_value):.2f} V")
+                print(f"Muscle state: {muscle_state}, RawValue: {raw_value}, Voltage: {voltage:.2f} V, Filtered Value: {sliding_filter(voltage):.2f} V")
                 writer.writerow([round(timestamp, 2), round(voltage, 2), muscle_state])
-                # buffer[index] = filtered_value
+                
+                
             except ValueError:
                 pass
 

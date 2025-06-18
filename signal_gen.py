@@ -65,6 +65,23 @@ def sliding_filter(new_value):
     average = sum(buffer) / window_size
     return average
 
+def sliding_filter_explained(value):
+    global index
+    print(f"Índice antes: {index}")
+    buffer[index] = value
+    print(f"Guardando {value} en buffer[{index}]")
+    # Aquí usamos el módulo para que el índice vuelva a 0 cuando llegue a window_size
+    index = (index + 1) % window_size
+    print(f"Índice después: {index} (por módulo: ({index - 1} + 1) % {window_size})")
+    print(f"Buffer actual: {buffer}\n")
+    return sum(buffer) / window_size
+
+# Simulación de llegada de datos
+datos = [10, 20, 30, 40, 50]
+for dato in datos:
+    promedio = sliding_filter(dato)
+    print(f"Nuevo dato: {dato}, Promedio: {promedio}\n{'-'*40}")
+
 # duncion cuando no usamos la rasp
 def get_timestamp():
     try:
@@ -132,7 +149,7 @@ try:
     while True:
         timestamp = get_timestamp()
         raw_signal = generate_emg_signal_real()
-        filtered_signal = sliding_filter(raw_signal)
+        filtered_signal = sliding_filter_explained(raw_signal)
 
         # Comparación con el umbral
 
