@@ -65,6 +65,14 @@ Accede al método "init" de la clase BLEDevice mediante el operador "::" (operad
 
 Creamos un pointer al objeto del server BLE y le asignamos los métodos que overrideamos: onConnect(), onDisconnect().
 
+4. Crear service
+```cpp
+    BLEService *pService = pServer->createService(SERVICE_UUID);
+```
+Creamos un pointer al objeto de BLEService
+
+
+
 
 
 

@@ -70,7 +70,7 @@ for dato in datos:
     print(f"Nuevo dato: {dato}, Promedio: {promedio}\n{'-'*40}")
 
 # función para generar distintos files
-def generate_filename(base_name="emg_log_sensor"):
+def generate_filename(base_name="logs/emg_log_sensor"):
     try:
         # MicroPython no tiene datetime completo, simulamos con ticks_ms
         now = get_timestamp()
