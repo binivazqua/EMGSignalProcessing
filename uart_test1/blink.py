@@ -13,7 +13,7 @@ window = []
 window_size = 50
 summary_interval_ms = 500
 last_summary_time = time.ticks_ms()
-threshold = 0.2
+threshold = 3.0
 
 
 
@@ -55,6 +55,7 @@ while True:
         # Crear paquetito de datos
         data = {
             "avg_value": avg_value,
+            "adc_value": adc_value,
             "min_value": min(window) if window else 0, # siempre agregar un fail safe si "window" está vacío.
             "max_value": max(window) if window else 0,
             "state": "active" if avg_value > threshold else "rest",
@@ -63,6 +64,7 @@ while True:
         json_data = ujson.dumps(data)
         # Enviar los datos por UART
         uart.write(json_data + '\n')
+        #print(f"valor ADC: {adc_value}, Voltaje: {voltage:.2f}V, Promedio: {avg_value:.2f}V, Estado: {data['state']}")
         print(f"Enviado: {json_data}")
         # Actualizar el tiempo WOWOWOW
         last_summary_time = now
