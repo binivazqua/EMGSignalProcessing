@@ -32,21 +32,19 @@
 //   // Inicializar device
 //   BLEDevice::deinit(true);  // Fuerza limpieza de sesiones BLE previas
 //   BLEDevice::init("XIAO-EMG"); // ACCEDER AL MÉTODO INIT sin crear una instancia
- 
-
 
 //   // Crear server con las funciones que overrideamos. Servidor -> transmite. Cliente -> recibe
 //   BLEServer *pServer = BLEDevice::createServer();
 //   pServer->setCallbacks(new MyServerCallbacks());
 
 //   // Crear service -> conjunto de características a otorgar/transmitir al cliente.
-//   BLEService *pService = pServer->createService(SERVICE_UUID); 
+//   BLEService *pService = pServer->createService(SERVICE_UUID);
 
 //   // Crear característica -> datos individuales a enviar.
 //   pCharacteristic = pService->createCharacteristic(CHARACTERISTIC_UUID, BLECharacteristic::PROPERTY_NOTIFY); // Usamos PROPERTY_NOTIFY para enviar datos automáticamente sin que el cliente los pida.
 
 //   // Añadir descriptor a la característica -> describe cómo usarla, permite que el cliente la interprete, acceda a ella.
-//   pCharacteristic->addDescriptor(new BLE2902()); 
+//   pCharacteristic->addDescriptor(new BLE2902());
 
 //   // Activar servicio y mostrar dispositivo por BLE
 //   pService->start();
@@ -55,8 +53,6 @@
 
 //   // Debug line:
 //   Serial.println("Esperando conexión BLE...");
-
-
 
 // }
 
@@ -77,6 +73,5 @@
 //     delay(1000);
 //   }
 
-
-//   // 
+//   //
 // }
